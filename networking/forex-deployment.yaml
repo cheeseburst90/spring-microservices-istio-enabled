@@ -1,0 +1,52 @@
+#################################################################################################
+# forex service
+##################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: forex-service
+  labels:
+    app: forex-service
+    service: forex-service
+spec:
+  ports:
+  - port: 8001
+    name: http
+    targetPort: 9001
+  selector:
+    app: forex-service
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spring-forex-service
+  labels:
+    account: forex-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: forex-service
+  labels:
+    app: forex-service
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: forex-service
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: forex-service
+        version: v1
+    spec:
+      serviceAccountName: spring-forex-service
+      containers:
+      - name: forex-service
+        image: asia.gcr.io/firm-vertex-263711/spring-boot-microservice-forex-service:version_2
+        imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 5
+---

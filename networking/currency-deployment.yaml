@@ -1,0 +1,52 @@
+##################################################################################################
+# currency service
+##################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: currency-service
+  labels:
+    app: currency-service
+    service: currency-service
+spec:
+  ports:
+  - port: 8002
+    name: http
+    targetPort: 8100
+  selector:
+    app: currency-service
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spring-currency-service
+  labels:
+    account: currency-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: currency-service
+  labels:
+    app: currency-service
+    version: v1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: currency-service
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: currency-service
+        version: v1
+    spec:
+      serviceAccountName: spring-currency-service
+      containers:
+      - name: currency-service
+        image: asia.gcr.io/firm-vertex-263711/spring-boot-microservice-currency-conversion:version_2
+        imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 5
+---
